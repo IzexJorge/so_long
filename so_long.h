@@ -24,7 +24,10 @@ int		main(int argc, char *argv[]);
 char	*ft_strjoin_free(char *s1, char *s2);
 int		ft_perror(void);
 int		ft_printf_error(char *error_message);
-int		is_map_valid(char **map);
+size_t	ft_arraylen(char **array);
+int		is_map_valid(char **map, char **map_copy);
+int		are_chars_valid(char **map, size_t *start_coord);
+int		draw_map(char **map);
 
 #endif
 

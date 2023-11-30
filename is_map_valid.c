@@ -1,80 +1,109 @@
 
-// 1. Comprobar que el borde es válido(que sea rectangular y sin huecos).
-// 2. Escanear todo el mapa en busca de la entrada.
-// 3. Aprovechar ese escaneo para comprobar que hay al menos un coleccionable,
-// que hay sólo una entrada y una salida y que no hay ningún carácter desconocido.
-// 4. Recorrer cada tile accesible, añadiendo los colleccionables a un array y
-// la salida a un puntero(que originalmente tiene valor 0) según se van encontrando.
-int	is_rectangle(char **map)
+#include "so_long.h"
+
+size_t	is_rectangle(char **map)
 {
-	int	i;
-	int	last_col_index;
+	size_t	y;
+	size_t	last_col_index;
 
 	last_col_index = ft_strlen(map[0]) - 1;
-	i = -1;
-	while (map[++i])
-		if (last_col_index != ft_strlen(map[i]))
+	y = -1;
+	while (map[++y])
+		if (last_col_index != ft_strlen(map[y]) - 1)
 			return (0);
+	ft_printf("It is a rectangle with %d columns.\n", last_col_index + 1);//QUITAR
 	return (last_col_index);
 }
 
-int	is_border_valid(char **map, int last_col_index)
+//Puede que no haga falta si añado un condicional de borde a adyacent_tiles.
+int	is_border_valid(char **map, size_t last_col_index)
 {
-	int	last_row_index;
-	int	i;
-	int	*row;
-	int	j;
+	size_t	last_row_index;
+	size_t	y;
+	char	*row;
+	size_t	x;
 
 	last_row_index = ft_arraylen(map) - 1;
-	i = -1;
-	while (map[++i])
+	y = -1;
+	while (map[++y])
 	{
-		row = map[i];
-		j = -1;
-		if (i == 0 || i == last_row_index)
+		row = map[y];
+		x = -1;
+		if (y == 0 || y == last_row_index)
 		{
-			while (row[++j])
-				if (row[j] != '1')
+			while (row[++x])
+				if (row[x] != '1')
 					return (0);
 		}
 		else
 		{
-			while (row[++j])
-				if ((j == 0 || j == last_col_index) && row[j] != '1')
+			while (row[++x])
+				if ((x == 0 || x == last_col_index) && row[x] != '1')
 					return (0);
 		}
 	}
+	ft_printf("Border is valid.\n");//QUITAR
 	return (1);
 }
 
-//La misma función que compruebe si hay un path desde la entrada hasta la salida se puede utilizar
-//exactamente de la misma forma para comprobar si hay un path hasta cada uno de los coleccionables.
-
-//función recursiva que obtenga las casillas no-muros adyacentes. Tal vez no recursiva.
-int	adyacent_tiles(char **map, int *coord)
+void	adyacent_tiles(char **map, size_t y, size_t x)
 {
-	if (map[coord[1]][coord[2]] == 'P')
+	char	c;
+
+	c = map[y][x];
+	if (c == '1')
+		return ;
+	map[y][x] = '1';
+	if (c == 'E')
+		return ;
+	adyacent_tiles(map, y + 1, x);
+	adyacent_tiles(map, y - 1, x);
+	adyacent_tiles(map, y, x + 1);
+	adyacent_tiles(map, y, x - 1);
+}
+
+int	is_path_valid(char **map_copy, size_t *start_coord)
+{
+	size_t	y;
+
+	adyacent_tiles(map_copy, start_coord[0], start_coord[1]);
+	y = -1;
+	while (map_copy[++y])
 	{
-
+		if (ft_strchr(map_copy[y], 'E') || ft_strchr(map_copy[y], 'C'))
+		{
+			free(map_copy);
+			return (0);
+		}
 	}
-	//Añadir las coordenadas a una tabla que recoja todas las coordenadas transitables para no pasar
-	//dos veces por la misma.
+	free(map_copy);
+	ft_printf("Path is valid.\n");//QUITAR
+	return (1);
 }
 
-int	is_map_valid(char *container, char **map)
+int	is_map_valid(char **map, char **map_copy)
 {
-	int		start_coord[2];
-	int		last_col_index;
+	int		return_value;
+	size_t	start_coord[2];
+	size_t	last_col_index;
 
-	if (!are_chars_valid(container, start_coord))
-		return (0);
-	last_col_index = is_rectangle(map);
-	if (!last_col_index)
-		return (0);
-	if (!is_border_valid(map, last_col_index))
-		return (0);
-	
-
-
-	return (1);
+	return_value = 1;
+	if (!are_chars_valid(map, start_coord))
+		return_value = 0;
+	else
+	{
+		last_col_index = is_rectangle(map);
+		if (!last_col_index)
+		{
+			ft_printf("It is NOT a rectangle.\n");//QUITAR Y Llaves
+			return_value = 0;
+		}
+		else if (!is_border_valid(map, last_col_index))
+			return_value = 0;
+		else if (!is_path_valid(map_copy, start_coord))
+			return_value = 0;
+	}
+	if (return_value == 0)
+		free(map);
+	return (return_value);
 }
