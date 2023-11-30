@@ -2,7 +2,10 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 SRC = so_long.c \
-	so_long_utils.c
+	so_long_utils.c \
+	is_map_valid.c \
+	is_map_valid2.c \
+	draw_map.c
 OBJ = $(SRC:.c=.o)
 NAME = so_long
 
