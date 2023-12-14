@@ -112,11 +112,11 @@ int	main(int argc, char *argv[])
 
 	free(container);
 
-	//Comprobar también que el mapa no es demasiado grande para la pantalla. Tal vez en draw_map.
+	//Comprobar también que el mapa no es demasiado grande para la pantalla. Tal vez en run_map.
 	if (!is_map_valid(map, map_copy))
 		return (ft_printf_error("Invalid map."));
 
-	if (!draw_map(map))
+	if (!run_map(map))
 	{
 		free(map);
 		return (ft_perror());
@@ -124,8 +124,8 @@ int	main(int argc, char *argv[])
 	free(map);
 	return (0);
 
-	//Versión liberando map en draw_map en todos los casos, no dependiendo de qué retorne.
-	// if (!draw_map(map))
+	//Versión liberando map en run_map en todos los casos, no dependiendo de qué retorne.
+	// if (!run_map(map))
 	// 	return (ft_perror());
 	// return (0);
 }
