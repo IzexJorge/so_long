@@ -32,13 +32,13 @@ char	*ft_strjoin_free(char *s1, char *s2)
 int	ft_perror(void)
 {
 	perror("Error");
-	return (1);
+	exit(1);
 }
 
 int	ft_printf_error(char *error_message)
 {
 	ft_printf("Error: %s\n", error_message);
-	return (1);
+	exit(1);
 }
 
 size_t	ft_arraylen(char **array)
@@ -49,4 +49,16 @@ size_t	ft_arraylen(char **array)
 	while (array[i])
 		i++;
 	return (i);
+}
+
+void	free_array(char **array)
+{
+	int	i;
+
+	i = -1;
+	while (array[++i])
+	{
+		free(array[i]);
+	}
+	free(array);
 }

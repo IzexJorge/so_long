@@ -4,7 +4,8 @@ CFLAGS = -Wall -Wextra -Werror
 SRC = so_long.c \
 	so_long_utils.c \
 	is_map_valid.c \
-	is_map_valid2.c \
+	are_chars_valid.c \
+	run_map_init.c \
 	run_map.c
 OBJ = $(SRC:.c=.o)
 NAME = so_long
@@ -14,8 +15,9 @@ MLX = -L/usr/local/lib -lmlx -framework OpenGL -framework AppKit
 
 all: $(NAME)
 
+#Quitar -g3 -fsanitize=address
 $(NAME): $(OBJ) libft/libft.a printf/libftprintf.a
-	$(CC) -o $(NAME) $(OBJ) $(MLX) -Llibft -Lprintf -lft -lftprintf
+	$(CC) -o $(NAME) $(OBJ) $(MLX) -Llibft -Lprintf -lft -lftprintf -g3 -fsanitize=address
 
 libft/libft.a :
 	$(MAKE) -C libft -f Makefile

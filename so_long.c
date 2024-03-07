@@ -1,7 +1,7 @@
 
 #include "so_long.h"
 
-int	is_arg_valid(char *arg)
+static int	is_arg_valid(char *arg)
 {
 	char	*extension;
 	size_t	n;
@@ -20,7 +20,7 @@ int	is_arg_valid(char *arg)
 		return (1);
 }
 
-char	*read_file(int fd)
+static char	*read_file(int fd)
 {
 	char	*buffer;
 	char	*container;
@@ -49,20 +49,22 @@ char	*read_file(int fd)
 	return (container);
 }
 
-char	*get_container(char **argv)
+static char	*get_container(char **argv)
 {
 	int		fd;
 	char	*container;
 
 	fd = open(argv[1], O_RDONLY);
 	if (fd == -1)
-		return (0);
+		ft_perror();
 	container = read_file(fd);
 	close(fd);
+	if (!container)
+		ft_perror();
 	return (container);
 }
 
-char	**get_map(char *container)
+static char	**get_map(char *container)
 {
 	char	**map;
 
@@ -77,51 +79,36 @@ char	**get_map(char *container)
 
 int	main(int argc, char *argv[])
 {
-	//int		fd;
 	char	*container;
 	char	**map;
 	char	**map_copy;
 
 	if (argc != 2 || !is_arg_valid(argv[1]))
-		return (ft_printf_error("Only one \"file_name.ber\" argument required."));
-
-	// fd = open(argv[1], O_RDONLY);
-	// if (fd == -1)
-	// 	return (ft_perror());
-	// container = read_file(fd);
-	// close(fd);
-	// if (!container)
-	// 	return (ft_perror());
+		ft_printf_error("Only one \"file_name.ber\" argument required.");
 	container = get_container(argv);
-	if (!container)
-		return (ft_perror());
-
-	// map = ft_split(container, '\n');
-	// if (!map)
-	// {
-	// 	free(container);
-	// 	return (ft_perror());
-	// }
 	map = get_map(container);
 	if (!map)
-		return (ft_perror());
-
+		ft_perror();
 	map_copy = get_map(container);
 	if (!map_copy)
-		return (ft_perror());
-
+	{
+		free_array(map);
+		ft_perror();
+	}
 	free(container);
 
 	//Comprobar también que el mapa no es demasiado grande para la pantalla. Tal vez en run_map.
-	if (!is_map_valid(map, map_copy))
-		return (ft_printf_error("Invalid map."));
+	is_map_valid(map, map_copy);
 
-	if (!run_map(map))
-	{
-		free(map);
-		return (ft_perror());
-	}
-	free(map);
+	// if (!run_map(map))
+	// {
+	// 	ft_printf("return run_map");
+	// 	free_array(map);
+	// 	ft_perror();
+	// }
+	run_map(map);
+	//free_array(map);
+	ft_printf("Fin del main");
 	return (0);
 
 	//Versión liberando map en run_map en todos los casos, no dependiendo de qué retorne.

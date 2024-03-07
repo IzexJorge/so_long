@@ -6,14 +6,14 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/13 21:43:21 by jescuder          #+#    #+#             */
-/*   Updated: 2023/12/15 00:07:51 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/03/08 00:13:03 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
 // Sólo imprime los caracteres, para probar.
-int	print_map(char **map)
+int		print_map(char **map)
 {
 	size_t	i;
 	char	*row;
@@ -31,7 +31,7 @@ int	print_map(char **map)
 	return (1);
 }
 
-int	enough_space(void *mlx, int map_x, int map_y, int tile_s)
+int		enough_space(void *mlx, int map_x, int map_y, int tile_s)
 {
 	int	screen_x;
 	int	screen_y;
@@ -46,70 +46,133 @@ int	enough_space(void *mlx, int map_x, int map_y, int tile_s)
 		return (0);
 }
 
-void	my_mlx_pixel_put(t_img *img, int x, int y, int color)
+//Tal vez haya que destruir las imagenes con destroy_image.
+//Añadir argumento para errores. Quizá también otro opcional para mensaje de error custom.
+void	finish_game(t_mlx *mlx)
 {
-	char	*dst;
-	char	*addr;
-	int		line_length;
-	int		bits_per_pixel;
-
-	addr = img->addr;
-	line_length = img->line_length;
-	bits_per_pixel = img->bits_per_pixel;
-	dst = addr + y * line_length + x * (bits_per_pixel / 8);
-	*(unsigned int *)dst = color;
-}
-
-void	move_player(int axis, int direction, t_var *var)
-{
-	(void)axis;
-	(void)direction;
-	(void)var;
-}
-
-int	on_keydown(int keycode, t_var *var)
-{
-	if (keycode == 2)//Derecha
-		move_player(0, 1, var);
-	else if (keycode == 0)//Izquierda
-		move_player(0, -1, var);
-	else if (keycode == 1)//Abajo
-		move_player(1, 1, var);
-	else if (keycode == 13)//Arriba
-		move_player(1, -1, var);
-	else if (keycode == 53)
-	{
-		mlx_destroy_window(var->mlx, var->win);
-		exit(0);
-	}
-	ft_printf("%d", keycode);
-	return (0);
-}
-
-int	on_destroy()
-{
+	ft_printf("finish game");
+	mlx_destroy_window(mlx->mlx, mlx->win);
+	free(mlx->mlx);
+	free_array(mlx->map);
+	(void)mlx;
 	exit(0);
 }
 
-int	run_map(char **map)
+//Comprobar por qué la ausencia estos free no hacen saltar el sanitizer. Especialmente el de map.
+int		on_destroy(t_mlx *mlx)
 {
-	t_var	var;
+	ft_printf("on_destroy");
+	free(mlx->win);
+	free(mlx->mlx);
+	free_array(mlx->map);
+	(void)mlx;
+	exit(0);
+}
+
+void	kill_zombie(t_mlx *mlx)
+{
+	(void)mlx;
+}
+
+void	move_player(t_mlx *mlx)
+{
+	(void)mlx;
+}
+
+//Comprobar necesidad de throttle
+void	check_move_player(size_t x, size_t y, t_mlx *mlx)
+{
+	size_t next_player_x;
+	size_t next_player_y;
+	char element;
+
+	//Return si el player se está moviendo.
+	next_player_x = mlx->player.x + x;
+	next_player_y = mlx->player.y + y;
+	element = mlx->map[next_player_x][next_player_x];
+	if (element == '1')
+		return ;
+	else if (element == 'C')
+		kill_zombie(mlx);
+	else if (element == 'E')//&& no quedan coleccionables
+		finish_game(mlx);
+	move_player(mlx);
+}
+
+int		on_keydown(int keycode, t_mlx *mlx)
+{
+	if (keycode == 2 || keycode == 124)//Derecha
+		check_move_player(1, 0, mlx);
+	else if (keycode == 0 || keycode == 123)//Izquierda
+		check_move_player(-1, 0, mlx);
+	else if (keycode == 1 || keycode == 125)//Abajo
+		check_move_player(0, 1, mlx);
+	else if (keycode == 13 || keycode == 126)//Arriba
+		check_move_player(0, -1, mlx);
+	else if (keycode == 53)//Escape
+		finish_game(mlx);
+	return (0);
+}
+
+//Probablemente
+void	draw_img(t_img img, size_t x, size_t y, t_mlx *mlx)
+{
+	mlx_put_image_to_window(mlx->mlx, mlx->win, img.img, x * g_tile_size, y * g_tile_size);
+}
+
+//Cada animation podría tener su propia función update.
+//Pensar si cada entity tiene una animation(o un array de ellos) como field, o las genero aparte.
+int		update_graphics(t_mlx *mlx)
+{
+	//Para renderizar una animación, incrementar delay_counter y si > delay, draw_img current_img.
+	//Se hay movimiento, modificar X o Y con (1 o -1) * g_tile_size / imgs_count.
+
+	//Renderizar cada zombie vivo.
+	//NO renderizar cadáveres en función de la posición del jugador debido a los desplazamientos.
+
+	//OPCIÓN 1
+	//Usar flag moving_direction en mlx o en Entity. 0 Para parado y 1-4 para direcciones.
+	//Si player en movimiento, renderizar cadáveres de zombie en ambas tiles si los hay y
+	//luego renderizar al jugador.
+
+
+	//OPCIÓN 2
+	//Cada animación tiene su función.
+	//No parece haber motivo para hacer esto.
+	
+
+	return (0);
+}
+
+int		run_map(char **map)
+{
+	t_mlx	mlx;
 
 	print_map(map);//Para probar
 
-	var.mlx = mlx_init();
-	var.win = mlx_new_window(var.mlx, 1920, 1080, "Hello world!");//No hardcoded
-	//var.img.img = mlx_new_image(var.mlx, 1920, 1080);
-	//var.img.addr = mlx_get_data_addr(var.img.img, &var.img.bits_per_pixel, &var.img.line_length,
-	//							&var.img.endian);
-	//my_mlx_pixel_put(&img, 5, 5, 0x0000FF00);
-	
-	mlx_hook(var.win, 2, 0, on_keydown, &var);
-	mlx_hook(var.win, 17, 0, on_destroy, 0);
-	mlx_put_image_to_window(var.mlx, var.win, var.img.img, 0, 0);
-	mlx_loop(var.mlx);
+	mlx.mlx = mlx_init();
+	if (!mlx.mlx)
+		return (0);
+	mlx.win = mlx_new_window(mlx.mlx, 1920, 1080, "Hello world!");//No hardcoded
+	if (!mlx.win)
+	{
+		free(mlx.mlx);
+		return (0);
+	}
+	mlx.map = map;
+	mlx.zombies = NULL;
+	mlx.move_count = 0;
+	init_img_sets(&mlx);
+	init_map(&mlx);
+	//Tal vez liberar map aquí, ya que no hace falta más. Quizá incluso no tenerlo como field de mlx.
 
-	return (0);
+	mlx_hook(mlx.win, 2, 0, on_keydown, &mlx);
+	mlx_hook(mlx.win, 17, 0, on_destroy, &mlx);
+
+	mlx_loop_hook(mlx.mlx, update_graphics, &mlx);
+	mlx_loop(mlx.mlx);
+
+	return (1);
 }
 
 //Matriz de imágenes correspondientes a cada tile.

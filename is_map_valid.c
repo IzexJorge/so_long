@@ -1,7 +1,7 @@
 
 #include "so_long.h"
 
-size_t	is_rectangle(char **map)
+static size_t	is_rectangle(char **map)
 {
 	size_t	y;
 	size_t	last_col_index;
@@ -11,12 +11,11 @@ size_t	is_rectangle(char **map)
 	while (map[++y])
 		if (last_col_index != ft_strlen(map[y]) - 1)
 			return (0);
-	ft_printf("It is a rectangle with %d columns.\n", last_col_index + 1);//QUITAR
 	return (last_col_index);
 }
 
 //Puede que no haga falta si añado un condicional de borde a adyacent_tiles.
-int	is_border_valid(char **map, size_t last_col_index)
+static int	is_border_valid(char **map, size_t last_col_index)
 {
 	size_t	last_row_index;
 	size_t	y;
@@ -42,11 +41,10 @@ int	is_border_valid(char **map, size_t last_col_index)
 					return (0);
 		}
 	}
-	ft_printf("Border is valid.\n");//QUITAR
 	return (1);
 }
 
-void	adyacent_tiles(char **map, size_t y, size_t x)
+static void	adyacent_tiles(char **map, size_t y, size_t x)
 {
 	char	c;
 
@@ -62,7 +60,7 @@ void	adyacent_tiles(char **map, size_t y, size_t x)
 	adyacent_tiles(map, y, x - 1);
 }
 
-int	is_path_valid(char **map_copy, size_t *start_coord)
+static int	is_path_valid(char **map_copy, size_t *start_coord)
 {
 	size_t	y;
 
@@ -71,39 +69,34 @@ int	is_path_valid(char **map_copy, size_t *start_coord)
 	while (map_copy[++y])
 	{
 		if (ft_strchr(map_copy[y], 'E') || ft_strchr(map_copy[y], 'C'))
-		{
-			free(map_copy);
 			return (0);
-		}
 	}
-	free(map_copy);
-	ft_printf("Path is valid.\n");//QUITAR
 	return (1);
 }
 
-int	is_map_valid(char **map, char **map_copy)
+void	is_map_valid(char **map, char **map_copy)
 {
-	int		return_value;
+	int		is_valid;
 	size_t	start_coord[2];
 	size_t	last_col_index;
 
-	return_value = 1;
+	is_valid = 1;
 	if (!are_chars_valid(map, start_coord))
-		return_value = 0;
+		is_valid = 0;
 	else
 	{
 		last_col_index = is_rectangle(map);
 		if (!last_col_index)
-		{
-			ft_printf("It is NOT a rectangle.\n");//QUITAR Y Llaves
-			return_value = 0;
-		}
+			is_valid = 0;
 		else if (!is_border_valid(map, last_col_index))
-			return_value = 0;
+			is_valid = 0;
 		else if (!is_path_valid(map_copy, start_coord))
-			return_value = 0;
+			is_valid = 0;
 	}
-	if (return_value == 0)
-		free(map);
-	return (return_value);
+	free_array(map_copy);
+	if (!is_valid)
+	{
+		free_array(map);
+		ft_printf_error("Invalid map.");
+	}
 }
