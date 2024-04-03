@@ -22,61 +22,100 @@
 //Comprobar que puedo y debo usar static const aquí.
 //Controlar el caso de que no tenga permisos para acceder a los archivos de imágenes.
 static const size_t	g_tile_size = 32;
-static const char	*g_single_img_paths[] = {
+static const char	*g_single_img[] = {
+	"textures/Ground1.xpm",
+	"textures/Wall1.xpm",
+	"textures/Exit.xpm",
+	NULL
+};
+static const char	*g_anim_move_left[] = {
 	"textures/Ground1.xpm",
 	"textures/Wall1.xpm",
 	"textures/Idle-down.xpm",
 	"textures/Zombie-idle-down.xpm",
 	"textures/Exit.xpm",
+	"textures/Ground1.xpm",
+	NULL
 };
-static const char	*g_anim_left_paths[] = {
+static const char	*g_anim_move_right[] = {
 	"textures/Ground1.xpm",
 	"textures/Wall1.xpm",
 	"textures/Idle-down.xpm",
 	"textures/Zombie-idle-down.xpm",
 	"textures/Exit.xpm",
+	NULL
 };
-static const char	*g_anim_right_paths[] = {
+static const char	*g_anim_move_up[] = {
 	"textures/Ground1.xpm",
 	"textures/Wall1.xpm",
 	"textures/Idle-down.xpm",
 	"textures/Zombie-idle-down.xpm",
 	"textures/Exit.xpm",
+	NULL
 };
-static const char	*g_anim_up_paths[] = {
+static const char	*g_anim_move_down[] = {
 	"textures/Ground1.xpm",
 	"textures/Wall1.xpm",
 	"textures/Idle-down.xpm",
 	"textures/Zombie-idle-down.xpm",
 	"textures/Exit.xpm",
+	NULL
 };
-static const char	*g_anim_down_paths[] = {
+static const char	*g_anim_idle_down[] = {
+	"textures/Idle-down.xpm",
+	"textures/Idle-down2.xpm",
+	NULL
+};
+static const char	*g_anim_zombie_idle_down[] = {
+	"textures/Zombie-idle-down.xpm",
+	"textures/Zombie-idle-down2.xpm",
+	NULL
+};
+static const char	*g_anim_attack[] = {
 	"textures/Ground1.xpm",
 	"textures/Wall1.xpm",
 	"textures/Idle-down.xpm",
 	"textures/Zombie-idle-down.xpm",
 	"textures/Exit.xpm",
+	NULL
 };
-static const char	*g_anim_attack_paths[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
+static const char	*g_anim_death[] = {
+	"textures/Zombie-death1.xpm",
+	"textures/Zombie-death2.xpm",
+	"textures/Zombie-death3.xpm",
+	"textures/Zombie-death4.xpm",
+	NULL
 };
-static const char	*g_anim_die_paths[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
-};
+
+// static const char	*img_paths[] = {
+// 	{
+// 		"textures/Ground1.xpm",
+// 		"textures/Wall1.xpm",
+// 		"textures/Idle-down.xpm",
+// 		"textures/Zombie-idle-down.xpm",
+// 		"textures/Exit.xpm",
+// 	},
+// 	{
+// 		"textures/Ground1.xpm",
+// 		"textures/Wall1.xpm",
+// 		"textures/Idle-down.xpm",
+// 		"textures/Zombie-idle-down.xpm",
+// 		"textures/Exit.xpm",
+// 	},
+// };
+
+// struct MyStruct {
+//     int data;
+// };
+
+// static const struct MyStruct myArray[] = {{1}, {2}, {3}, {4}, {5}};
 
 int		main(int argc, char *argv[]);
 char	*ft_strjoin_free(char *s1, char *s2);
 int		ft_perror(void);
 int		ft_printf_error(char *error_message);
 size_t	ft_arraylen(char **array);
+size_t	ft_arraylen2(void *array, size_t element_size);
 void	free_array(char **array);
 void	is_map_valid(char **map, char **map_copy);
 int		are_chars_valid(char **map, size_t *start_coord);
@@ -114,11 +153,14 @@ typedef struct s_animation
 {
 	t_img	*img_set;
 	size_t	imgs_count;
-	int		current_img;
-	//Tal vez usar un delay global.
-	int		delay;
-    int		delay_counter;
+	size_t	current_img;
+	//Que cada tipo de animación(movimiento, ataque, muerte) tenga un delay distinto para que las
+	// transiciones no se sientan artificiales por estar sincronizadas.
+	size_t		delay;
+    size_t		delay_counter;
 	//Sólo hacen falta coordenadas y función update si Entity no tiene animation.
+	//O tal vez sea necesario para que al terminar de atacar el zombie empiece la animación de
+	// morirse y cuando acabe ésta el personaje empiece a moverse.
 	void	(*update)(t_list **, struct s_animation *);
 	size_t	x;
 	size_t	y;
@@ -127,16 +169,24 @@ typedef struct	s_entity
 {
 	size_t		x;
 	size_t		y;
-	int			dead;
 	t_animation	animation;
-	int			is_animated;
+	//0 - Idle
+	//1 - Moving left
+	//2 - Moving right
+	//3 - Moving up
+	//4 - Moving down
+	//5 - Attacking
+	//6 - Dead
+	int			state_value;
 }				t_entity;
 typedef struct s_mlx
 {
 	void		*mlx;
 	void		*win;
 	char		**map;
-	t_img		*imgs_sets[7];
+	t_img		*imgs_sets[9];
+	size_t		imgs_sets_sizes[9];
+	//t_img		**imgs_sets;
 	t_list		*zombies;
 	t_entity	player;
 	size_t		move_count;
@@ -168,6 +218,7 @@ void	init_img_sets(t_mlx *mlx);
 void	init_map(t_mlx *mlx);
 void	finish_game(t_mlx *mlx);
 void	draw_img(t_img img, size_t x, size_t y, t_mlx *mlx);
+void	draw_img_tile(t_img img, size_t x, size_t y, t_mlx *mlx);
 int		run_map(char **map);
 
 #endif

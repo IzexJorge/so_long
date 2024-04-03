@@ -6,7 +6,7 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/13 21:43:21 by jescuder          #+#    #+#             */
-/*   Updated: 2024/03/08 00:13:03 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/04/04 00:14:38 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,29 +74,46 @@ void	kill_zombie(t_mlx *mlx)
 	(void)mlx;
 }
 
-void	move_player(t_mlx *mlx)
+void	move_player(int x, int y, t_mlx *mlx)
 {
-	(void)mlx;
+	size_t		direction_value;
+	t_entity	*player;
+	t_animation	*animation;
+
+	if (x == -1)
+		direction_value = 1;
+	else if (x == 1)
+		direction_value = 2;
+	else if (y == -1)
+		direction_value = 3;
+	else
+		direction_value = 4;
+	player = &(mlx->player);
+	player->state_value = direction_value;
+	animation = &(player->animation);
+	animation->img_set = mlx->imgs_sets[direction_value];
+	animation->imgs_count = mlx->imgs_sets_sizes[direction_value];
+	animation->current_img = 0;
+	animation->delay = 9000;//TODO Comprobar qué delay es adecuado para los movimientos.
 }
 
 //Comprobar necesidad de throttle
-void	check_move_player(size_t x, size_t y, t_mlx *mlx)
+void	check_move_player(int x, int y, t_mlx *mlx)
 {
-	size_t next_player_x;
-	size_t next_player_y;
-	char element;
+	t_entity	*player;
+	char		element;
 
-	//Return si el player se está moviendo.
-	next_player_x = mlx->player.x + x;
-	next_player_y = mlx->player.y + y;
-	element = mlx->map[next_player_x][next_player_x];
+	player = &(mlx->player);
+	if (player->state_value != 0)
+		return ;
+	element = mlx->map[player->x + x][player->y + y];
 	if (element == '1')
 		return ;
-	else if (element == 'C')
+	else if (element == 'C')//TODO Cambiar a comprobar si hay un zombie vivo en esa posición.
 		kill_zombie(mlx);
 	else if (element == 'E')//&& no quedan coleccionables
 		finish_game(mlx);
-	move_player(mlx);
+	move_player(x, y, mlx);
 }
 
 int		on_keydown(int keycode, t_mlx *mlx)
@@ -114,17 +131,147 @@ int		on_keydown(int keycode, t_mlx *mlx)
 	return (0);
 }
 
-//Probablemente
 void	draw_img(t_img img, size_t x, size_t y, t_mlx *mlx)
 {
-	mlx_put_image_to_window(mlx->mlx, mlx->win, img.img, x * g_tile_size, y * g_tile_size);
+	mlx_put_image_to_window(mlx->mlx, mlx->win, img.img, x, y);
 }
 
-//Cada animation podría tener su propia función update.
+void	draw_img_tile(t_img img, size_t x, size_t y, t_mlx *mlx)
+{
+	draw_img(img, x * g_tile_size, y * g_tile_size, mlx);
+}
+
+void	draw_background(size_t x, size_t y, t_mlx *mlx)
+{
+	t_list		*zombies;
+	t_entity	*zombie;
+
+	draw_img_tile(mlx->imgs_sets[0][0], x, y, mlx);
+	zombies = mlx->zombies;
+	while (zombies)
+	{
+		zombie = zombies->content;
+		if (zombie->x == x && zombie->y == y)
+		{
+			if (zombie->state_value == 6)
+				draw_img_tile(mlx->imgs_sets[8][3], x, y, mlx);
+			return ;
+		}
+		zombies = zombies->next;
+	}
+}
+
+// void	update_iddle(t_entity *entity, t_animation *animation, t_mlx *mlx)
+// {
+// 	if (animation->delay_counter == animation->delay)
+// 	{
+// 		draw_background(entity->x, entity->y, mlx);
+// 		draw_img_tile(animation->img_set[animation->current_img], entity->x, entity->y, mlx);
+// 		animation->current_img = (animation->current_img + 1) % animation->imgs_count;
+// 		animation->delay_counter = 0;
+// 	}
+// 	animation->delay_counter++;
+// }
+
+void	update_iddle(t_entity *entity, t_animation *animation, t_mlx *mlx)
+{
+	draw_background(entity->x, entity->y, mlx);
+	draw_img_tile(animation->img_set[animation->current_img], entity->x, entity->y, mlx);
+	animation->current_img = (animation->current_img + 1) % animation->imgs_count;
+}
+
+void	stop_player(size_t x, size_t y, t_mlx *mlx)
+{
+	t_entity	*player;
+	t_animation	*animation;
+
+	player = &(mlx->player);
+	player->state_value = 0;
+	player->x = x;
+	player->y = y;
+	animation = &(player->animation);
+	animation->img_set = mlx->imgs_sets[5];
+	animation->imgs_count = mlx->imgs_sets_sizes[5];
+	animation->current_img = 0;
+	animation->delay = 9000;//TODO Comprobar qué delay es adecuado para idle.
+}
+
+void	update_move(t_entity *entity, t_animation *animation, int state_value, t_mlx *mlx)
+{
+	size_t	x;
+	size_t	y;
+	size_t	newX;
+	size_t	newY;
+
+	x = 0;
+	y = 0;
+	draw_background(x, y, mlx);
+	if (state_value == 1)
+		x--;
+	else if(state_value == 2)
+		x++;
+	else if(state_value == 3)
+		y--;
+	else
+		y++;
+	newX = entity->x + x;
+	newY = entity->y + y;
+	draw_background(newX, newY, mlx);
+	x = g_tile_size * (entity->x + x * animation->current_img / 3);
+	y = g_tile_size * (entity->y + y * animation->current_img / 3);
+	draw_img(animation->img_set[animation->current_img], x, y, mlx);
+	if (animation->current_img++ == animation->imgs_count - 1)
+		stop_player(newX, newY + y, mlx);
+}
+
+void	update_attack(t_entity *player, t_animation *animation, t_mlx *mlx)
+{
+	(void)player;
+	(void)animation;
+	(void)mlx;
+}
+
+void	update_player(t_entity *player, t_animation *animation, t_mlx *mlx)
+{
+	int		state_value;
+
+	state_value = player->state_value;
+	if (state_value == 0)
+		update_iddle(player, animation, mlx);
+	else if (state_value >= 1 && state_value <= 4)
+		update_move(player, animation, state_value, mlx);
+	else
+		update_attack(player, animation, mlx);
+}
+
+void	update_zombie(t_entity *zombie, t_animation *animation, t_mlx *mlx)
+{
+	if (zombie->state_value == 0)//De momento sólo puede estar dead o iddle, así que esto sobra.
+		update_iddle(zombie, animation, mlx);
+}
+
+void	update_entity(t_entity *entity, t_mlx *mlx)
+{
+	t_animation	*animation;
+
+	if (entity->state_value == 6)
+		return ;
+	animation = &(entity->animation);
+	if (animation->delay_counter == animation->delay)
+	{
+		if (entity == &(mlx->player))
+			update_player(entity, animation, mlx);
+		else
+			update_zombie(entity, animation, mlx);
+		animation->delay_counter = 0;
+	}
+	animation->delay_counter++;
+}
+
 //Pensar si cada entity tiene una animation(o un array de ellos) como field, o las genero aparte.
 int		update_graphics(t_mlx *mlx)
 {
-	//Para renderizar una animación, incrementar delay_counter y si > delay, draw_img current_img.
+	//Para renderizar una animación, incrementar delay_counter y si > delay, draw_img_tile current_img.
 	//Se hay movimiento, modificar X o Y con (1 o -1) * g_tile_size / imgs_count.
 
 	//Renderizar cada zombie vivo.
@@ -132,6 +279,7 @@ int		update_graphics(t_mlx *mlx)
 
 	//OPCIÓN 1
 	//Usar flag moving_direction en mlx o en Entity. 0 Para parado y 1-4 para direcciones.
+	//Probablemente mejor llamarla state_value y que -1 represente que está muerto y 5 atacando.
 	//Si player en movimiento, renderizar cadáveres de zombie en ambas tiles si los hay y
 	//luego renderizar al jugador.
 
@@ -139,10 +287,24 @@ int		update_graphics(t_mlx *mlx)
 	//OPCIÓN 2
 	//Cada animación tiene su función.
 	//No parece haber motivo para hacer esto.
-	
+
+	t_list	*zombies;
+
+	//update_player(&(mlx->player), mlx);
+	update_entity(&(mlx->player), mlx);
+
+	zombies = mlx->zombies;
+	while (zombies)
+	{
+		//update_zombie((t_entity *)zombies->content, mlx);
+		update_entity((t_entity *)zombies->content, mlx);
+		zombies = zombies->next;
+	}
 
 	return (0);
 }
+
+//TODO Setear fps para que haya consistencia de las animaciones en el tiempo y entre equipos.
 
 int		run_map(char **map)
 {

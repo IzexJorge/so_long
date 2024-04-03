@@ -6,21 +6,24 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/07 20:14:43 by jescuder          #+#    #+#             */
-/*   Updated: 2024/03/08 00:12:27 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/04/04 00:06:00 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-void	init_img_set(t_mlx *mlx, const char **img_paths, size_t index)
+void	init_img_set(const char **img_paths, size_t index, t_mlx *mlx)
 {
+	size_t	set_size;
 	t_img	*img_set;
 	size_t	i;
 
-	img_set = ft_calloc(ft_arraylen((char**)img_paths) + 1, sizeof(t_img));
+	set_size = ft_arraylen((char**)img_paths);
+	img_set = ft_calloc(set_size, sizeof(t_img));
 	if (!img_set)
 		finish_game(mlx);
 	mlx->imgs_sets[index] = img_set;
+	mlx->imgs_sets_sizes[index] = set_size;
 	i = -1;
 	while (img_paths[++i])
 	{
@@ -36,39 +39,41 @@ void	init_img_set(t_mlx *mlx, const char **img_paths, size_t index)
 
 void	init_img_sets(t_mlx *mlx)
 {
-	init_img_set(mlx, g_single_img_paths, 0);
-	init_img_set(mlx, g_anim_left_paths, 1);
-	init_img_set(mlx, g_anim_right_paths, 2);
-	init_img_set(mlx, g_anim_up_paths, 3);
-	init_img_set(mlx, g_anim_down_paths, 4);
-	init_img_set(mlx, g_anim_attack_paths, 5);
-	init_img_set(mlx, g_anim_die_paths, 6);
+	init_img_set(g_single_img, 0, mlx);
+	init_img_set(g_anim_move_left, 1, mlx);
+	init_img_set(g_anim_move_right, 2, mlx);
+	init_img_set(g_anim_move_up, 3, mlx);
+	init_img_set(g_anim_move_down, 4, mlx);
+	init_img_set(g_anim_idle_down, 5, mlx);
+	init_img_set(g_anim_zombie_idle_down, 6, mlx);
+	init_img_set(g_anim_attack, 7, mlx);
+	init_img_set(g_anim_death, 8, mlx);
 }
 
-void	init_animation(t_animation *animation, int isZombie, t_mlx *mlx)
+void	init_animation(t_animation *animation, int isZombie, size_t delay, t_mlx *mlx)
 {
+	size_t	index;
+
 	if (isZombie)
-	{
-		animation->img_set = mlx->imgs_sets[2];
-		//TODO Crear arraylen genérico
-		animation->imgs_count = ft_arraylen(animation->img_set);
-		//TODO Número aleatorio entre 0 y imgs_count para que los zombies estén desincronizados.
-		animation->current_img = 0;
-	}
+		index = 6;
 	else
-	{
-		animation->img_set = mlx->imgs_sets[1];
-		animation->imgs_count = ft_arraylen(animation->img_set);
-		animation->current_img = 0;
-	}
-	animation->delay = 0;
+		index = 5;
+	animation->img_set = mlx->imgs_sets[index];
+	animation->imgs_count = mlx->imgs_sets_sizes[index];
+	//animation->current_img = delay % animation->imgs_count;
+	animation->current_img = 0;
+	animation->delay = delay;
+	animation->delay_counter = delay;
+	ft_printf("init_animation %i %i\n", animation->current_img, animation->imgs_count);
 	//TODO Resto de fields en caso de haberlos.
 }
 
-void	add_entity(int isZombie, size_t x, size_t y, t_mlx *mlx)
+void	create_entity(int isZombie, size_t x, size_t y, t_mlx *mlx)
 {
 	t_entity	*entity;
 	t_list		*new_node;
+	char		**map;
+	size_t		delay;
 
 	if (isZombie)
 	{
@@ -82,11 +87,13 @@ void	add_entity(int isZombie, size_t x, size_t y, t_mlx *mlx)
 	}
 	else
 		entity = &(mlx->player);
-	init_animation(&(entity->animation), isZombie, mlx);
+	map = mlx->map;
+	delay = 10000 + 5000 * x * y / (ft_arraylen(map) * ft_strlen(map[0]));
+	//TODO Buscar una manera de evitar que el delay sea siempre mayor cuanto más abajo a la derecha.
+	init_animation(&(entity->animation), isZombie, delay, mlx);
+	entity->state_value = 0;
 	entity->x = x;
 	entity->y = y;
-	entity->dead = 0;
-	entity->is_animated = 1;
 }
 
 void	init_map(t_mlx *mlx)
@@ -103,16 +110,16 @@ void	init_map(t_mlx *mlx)
 		while (row[++x])
 		{
 			if (row[x] == '1')
-				draw_img(mlx->imgs_sets[0][1], x, y, mlx);
+				draw_img_tile(mlx->imgs_sets[0][1], x, y, mlx);
 			else
 			{
-				draw_img(mlx->imgs_sets[0][0], x, y, mlx);
+				draw_img_tile(mlx->imgs_sets[0][0], x, y, mlx);
 				if (row[x] == 'P')
-					add_entity(0, x, y, mlx);
+					create_entity(0, x, y, mlx);
 				else if (row[x] == 'C')
-					add_entity(1, x, y, mlx);
+					create_entity(1, x, y, mlx);
 				else if (row[x] == 'E')
-					draw_img(mlx->imgs_sets[0][4], x, y, mlx);
+					draw_img_tile(mlx->imgs_sets[0][2], x, y, mlx);
 			}
 		}
 	}
