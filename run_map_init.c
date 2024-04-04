@@ -6,7 +6,7 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/07 20:14:43 by jescuder          #+#    #+#             */
-/*   Updated: 2024/04/04 00:06:00 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/04/04 22:59:48 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,20 @@ void	init_img_set(const char **img_paths, size_t index, t_mlx *mlx)
 void	init_img_sets(t_mlx *mlx)
 {
 	init_img_set(g_single_img, 0, mlx);
-	init_img_set(g_anim_move_left, 1, mlx);
-	init_img_set(g_anim_move_right, 2, mlx);
-	init_img_set(g_anim_move_up, 3, mlx);
-	init_img_set(g_anim_move_down, 4, mlx);
-	init_img_set(g_anim_idle_down, 5, mlx);
-	init_img_set(g_anim_zombie_idle_down, 6, mlx);
-	init_img_set(g_anim_attack, 7, mlx);
-	init_img_set(g_anim_death, 8, mlx);
+	init_img_set(g_anim_walk_left, 1, mlx);
+	init_img_set(g_anim_walk_right, 2, mlx);
+	init_img_set(g_anim_walk_up, 3, mlx);
+	init_img_set(g_anim_walk_down, 4, mlx);
+	init_img_set(g_anim_stab_left, 5, mlx);
+	init_img_set(g_anim_stab_right, 6, mlx);
+	init_img_set(g_anim_stab_up, 7, mlx);
+	init_img_set(g_anim_stab_down, 8, mlx);
+	init_img_set(g_anim_idle_left, 9, mlx);
+	init_img_set(g_anim_idle_right, 10, mlx);
+	init_img_set(g_anim_idle_up, 11, mlx);
+	init_img_set(g_anim_idle_down, 12, mlx);
+	init_img_set(g_anim_zombie_idle, 13, mlx);
+	init_img_set(g_anim_death, 14, mlx);
 }
 
 void	init_animation(t_animation *animation, int isZombie, size_t delay, t_mlx *mlx)
@@ -55,9 +61,9 @@ void	init_animation(t_animation *animation, int isZombie, size_t delay, t_mlx *m
 	size_t	index;
 
 	if (isZombie)
-		index = 6;
+		index = 13;
 	else
-		index = 5;
+		index = 12;
 	animation->img_set = mlx->imgs_sets[index];
 	animation->imgs_count = mlx->imgs_sets_sizes[index];
 	//animation->current_img = delay % animation->imgs_count;

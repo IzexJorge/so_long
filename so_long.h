@@ -28,55 +28,85 @@ static const char	*g_single_img[] = {
 	"textures/Exit.xpm",
 	NULL
 };
-static const char	*g_anim_move_left[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
-	"textures/Ground1.xpm",
+static const char	*g_anim_walk_left[] = {
+	"textures/Walk-left1.xpm",
+	"textures/Walk-left2.xpm",
+	"textures/Walk-left3.xpm",
+	"textures/Walk-left4.xpm",
 	NULL
 };
-static const char	*g_anim_move_right[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
+static const char	*g_anim_walk_right[] = {
+	"textures/Walk-right1.xpm",
+	"textures/Walk-right2.xpm",
+	"textures/Walk-right3.xpm",
+	"textures/Walk-right4.xpm",
 	NULL
 };
-static const char	*g_anim_move_up[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
+static const char	*g_anim_walk_up[] = {
+	"textures/Walk-up1.xpm",
+	"textures/Walk-up2.xpm",
+	"textures/Walk-up3.xpm",
+	"textures/Walk-up4.xpm",
 	NULL
 };
-static const char	*g_anim_move_down[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
+static const char	*g_anim_walk_down[] = {
+	"textures/Walk-down1.xpm",
+	"textures/Walk-down2.xpm",
+	"textures/Walk-down3.xpm",
+	"textures/Walk-down4.xpm",
+	NULL
+};
+static const char	*g_anim_stab_left[] = {
+	"textures/Stab-left1.xpm",
+	"textures/Stab-left2.xpm",
+	"textures/Stab-left3.xpm",
+	"textures/Stab-left4.xpm",
+	NULL
+};
+static const char	*g_anim_stab_right[] = {
+	"textures/Stab-right1.xpm",
+	"textures/Stab-right2.xpm",
+	"textures/Stab-right3.xpm",
+	"textures/Stab-right4.xpm",
+	NULL
+};
+static const char	*g_anim_stab_up[] = {
+	"textures/Stab-up1.xpm",
+	"textures/Stab-up2.xpm",
+	"textures/Stab-up3.xpm",
+	"textures/Stab-up4.xpm",
+	NULL
+};
+static const char	*g_anim_stab_down[] = {
+	"textures/Stab-down1.xpm",
+	"textures/Stab-down2.xpm",
+	"textures/Stab-down3.xpm",
+	"textures/Stab-down4.xpm",
+	NULL
+};
+static const char	*g_anim_idle_left[] = {
+	"textures/Idle-left1.xpm",
+	"textures/Idle-left2.xpm",
+	NULL
+};
+static const char	*g_anim_idle_right[] = {
+	"textures/Idle-right1.xpm",
+	"textures/Idle-right2.xpm",
+	NULL
+};
+static const char	*g_anim_idle_up[] = {
+	"textures/Idle-up1.xpm",
+	"textures/Idle-up2.xpm",
 	NULL
 };
 static const char	*g_anim_idle_down[] = {
-	"textures/Idle-down.xpm",
+	"textures/Idle-down1.xpm",
 	"textures/Idle-down2.xpm",
 	NULL
 };
-static const char	*g_anim_zombie_idle_down[] = {
-	"textures/Zombie-idle-down.xpm",
-	"textures/Zombie-idle-down2.xpm",
-	NULL
-};
-static const char	*g_anim_attack[] = {
-	"textures/Ground1.xpm",
-	"textures/Wall1.xpm",
-	"textures/Idle-down.xpm",
-	"textures/Zombie-idle-down.xpm",
-	"textures/Exit.xpm",
+static const char	*g_anim_zombie_idle[] = {
+	"textures/Zombie-idle1.xpm",
+	"textures/Zombie-idle2.xpm",
 	NULL
 };
 static const char	*g_anim_death[] = {
@@ -175,8 +205,12 @@ typedef struct	s_entity
 	//2 - Moving right
 	//3 - Moving up
 	//4 - Moving down
-	//5 - Attacking
-	//6 - Dead
+	//5 - Attacking left
+	//6 - Attacking right
+	//7 - Attacking up
+	//8 - Attacking down
+	//9 - Dying
+	//10- Dead
 	int			state_value;
 }				t_entity;
 typedef struct s_mlx
@@ -184,12 +218,12 @@ typedef struct s_mlx
 	void		*mlx;
 	void		*win;
 	char		**map;
-	t_img		*imgs_sets[9];
-	size_t		imgs_sets_sizes[9];
+	t_img		*imgs_sets[15];
+	size_t		imgs_sets_sizes[15];
 	//t_img		**imgs_sets;
 	t_list		*zombies;
 	t_entity	player;
-	size_t		move_count;
+	size_t		walk_count;
 }				t_mlx;
 // Poner en un .c
 // void list_remove(t_list **head, void *content, int (*compare_func)(void *, void *)) {
