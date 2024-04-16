@@ -140,15 +140,7 @@ static const char	*g_anim_death[] = {
 
 // static const struct MyStruct myArray[] = {{1}, {2}, {3}, {4}, {5}};
 
-int		main(int argc, char *argv[]);
-char	*ft_strjoin_free(char *s1, char *s2);
-int		ft_perror(void);
-int		ft_printf_error(char *error_message);
-size_t	ft_arraylen(char **array);
-size_t	ft_arraylen2(void *array, size_t element_size);
-void	free_array(char **array);
-void	is_map_valid(char **map, char **map_copy);
-int		are_chars_valid(char **map, size_t *start_coord);
+
 // typedef struct	s_img {
 // 	void	*img;
 // 	char	*addr;
@@ -157,15 +149,6 @@ int		are_chars_valid(char **map, size_t *start_coord);
 // 	int		endian;
 // }				t_img;
 
-//	Tal vez sustituir por s_zombie
-// typedef struct s_renderable
-// {
-// 	size_t	x;
-// 	size_t	y;
-// 	//Tal vez función update
-// 	//La de los cuerpos de zombies puede ser simplemente que
-// 	//si el jugador está en su casilla se refresque.
-// }				t_renderable;
 //	Comprobar si hace falta width y height
 typedef struct s_img
 {
@@ -174,32 +157,20 @@ typedef struct s_img
 	int		height;
 }				t_img;
 
-// Tal vez sea más eficiente cambiar x e y en lugar de eliminar y crear otra.
-// Para ello hay que refrescar la casilla anterior.
-// Hay que ver cómo mantener los cuerpos de los zombies vencidos.
-// Probablemente sustituir en map el carácter C por otro y checkear map cuando
-// el personaje se mueva a una casilla nueva.
 typedef struct s_animation
 {
 	t_img	*img_set;
 	size_t	imgs_count;
 	size_t	current_img;
-	//Que cada tipo de animación(movimiento, ataque, muerte) tenga un delay distinto para que las
-	// transiciones no se sientan artificiales por estar sincronizadas.
-	size_t		delay;
-    size_t		delay_counter;
-	//Sólo hacen falta coordenadas y función update si Entity no tiene animation.
-	//O tal vez sea necesario para que al terminar de atacar el zombie empiece la animación de
-	// morirse y cuando acabe ésta el personaje empiece a moverse.
-	void	(*update)(t_list **, struct s_animation *);
-	size_t	x;
-	size_t	y;
+	size_t	delay;
+	size_t	delay_counter;
 }				t_animation;
-typedef struct	s_entity
+
+typedef struct s_entity
 {
 	size_t		x;
 	size_t		y;
-	t_animation	animation;
+	t_animation	anim;
 	//0 - Idle
 	//1 - Moving left
 	//2 - Moving right
@@ -213,6 +184,7 @@ typedef struct	s_entity
 	//10- Dead
 	int			state_value;
 }				t_entity;
+
 typedef struct s_mlx
 {
 	void		*mlx;
@@ -224,6 +196,7 @@ typedef struct s_mlx
 	t_list		*zombies;
 	t_entity	player;
 	size_t		walk_count;
+	size_t		kills_left;
 }				t_mlx;
 // Poner en un .c
 // void list_remove(t_list **head, void *content, int (*compare_func)(void *, void *)) {
@@ -248,12 +221,33 @@ typedef struct s_mlx
 // int compare_animation(void *anim1, void *anim2) {
 //     return ((t_animation *)anim1 == (t_animation *)anim2);
 // }
-void	init_img_sets(t_mlx *mlx);
-void	init_map(t_mlx *mlx);
-void	finish_game(t_mlx *mlx);
-void	draw_img(t_img img, size_t x, size_t y, t_mlx *mlx);
-void	draw_img_tile(t_img img, size_t x, size_t y, t_mlx *mlx);
-int		run_map(char **map);
+int			main(int argc, char *argv[]);
+char		*ft_strjoin_free(char *s1, char *s2);
+int			ft_perror(void);
+int			ft_printf_error(char *error_message);
+size_t		ft_arraylen(char **array);
+size_t		ft_arraylen2(void *array, size_t element_size);
+void		free_array(char **array);
+void		is_map_valid(char **map, char **map_copy);
+int			are_chars_valid(char **map, size_t *start_coord);
+void		init_img_sets(t_mlx *mlx);
+void		init_map(t_mlx *mlx);
+void		finish_game(t_mlx *mlx);
+void		draw_img(t_img img, float x, float y, t_mlx *mlx);
+int			run_map(char **map);
+int			update_graphics(t_mlx *mlx);
+void		update_iddle(t_entity *entity, t_animation *anim, t_mlx *mlx);
+void		update_walk(t_entity *entity, t_animation *anim, int state_value, t_mlx *mlx);
+void		update_attack(t_entity *entity, t_animation *anim, int state_value, t_mlx *mlx);
+void		update_dying(t_entity *entity, t_animation *anim, t_mlx *mlx);
+void		draw_img(t_img img, float x, float y, t_mlx *mlx);
+void		draw_background(size_t x, size_t y, t_mlx *mlx);
+void		draw_walking(t_entity *entity, float x, float y, t_mlx *mlx);
+void		walk(t_entity *entity, int x, int y, t_mlx *mlx);
+void		attack(t_entity *entity, int x, int y, t_mlx *mlx);
+void		stay_idle(t_entity *entity, int x, int y, t_mlx *mlx);
+void		die(t_entity *entity, t_mlx *mlx);
+t_entity	*get_zombie(size_t x, size_t y, t_mlx *mlx);
 
 #endif
 
