@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   run_map_init.c                                     :+:      :+:    :+:   */
+/*   init_map.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/07 20:14:43 by jescuder          #+#    #+#             */
-/*   Updated: 2024/04/16 23:21:40 by jescuder         ###   ########.fr       */
+/*   Created: 2024/04/18 21:51:28 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/18 23:03:24 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	init_img_set(const char **img_paths, size_t index, t_mlx *mlx)
 	t_img	*img_set;
 	size_t	i;
 
-	set_size = ft_arraylen((char**)img_paths);
+	set_size = ft_arraylen((char **)img_paths);
 	img_set = ft_calloc(set_size, sizeof(t_img));
 	if (!img_set)
 		finish_game(mlx);
@@ -28,7 +28,7 @@ void	init_img_set(const char **img_paths, size_t index, t_mlx *mlx)
 	while (img_paths[++i])
 	{
 		img_set[i].img = mlx_xpm_file_to_image(mlx->mlx, (char *)img_paths[i],
-							&(img_set[i].width), &(img_set[i].height));
+				&(img_set[i].width), &(img_set[i].height));
 		if (!img_set[i].img)
 		{
 			ft_printf("The file \"%s\" could not be read.\n", img_paths[i]);
@@ -56,7 +56,7 @@ void	init_img_sets(t_mlx *mlx)
 	init_img_set(g_anim_death, 14, mlx);
 }
 
-void	init_animation(t_animation *anim, int isZombie, size_t delay, t_mlx *mlx)
+void	init_animation(t_anim *anim, int isZombie, size_t delay, t_mlx *mlx)
 {
 	size_t	index;
 
@@ -66,12 +66,9 @@ void	init_animation(t_animation *anim, int isZombie, size_t delay, t_mlx *mlx)
 		index = 12;
 	anim->img_set = mlx->imgs_sets[index];
 	anim->imgs_count = mlx->imgs_sets_sizes[index];
-	//anim->current_img = delay % anim->imgs_count;
 	anim->current_img = 0;
 	anim->delay = delay;
 	anim->delay_counter = delay;
-	ft_printf("init_animation %i %i\n", anim->current_img, anim->imgs_count);
-	//TODO Resto de fields en caso de haberlos.
 }
 
 void	create_entity(int isZombie, size_t x, size_t y, t_mlx *mlx)
@@ -96,9 +93,8 @@ void	create_entity(int isZombie, size_t x, size_t y, t_mlx *mlx)
 		entity = &(mlx->player);
 	map = mlx->map;
 	delay = 10000 + 5000 * x * y / (ft_arraylen(map) * ft_strlen(map[0]));
-	//TODO Buscar una manera de evitar que el delay sea siempre mayor cuanto más abajo a la derecha.
 	init_animation(&(entity->anim), isZombie, delay, mlx);
-	entity->state_value = 0;
+	entity->state_val = 0;
 	entity->x = x;
 	entity->y = y;
 }

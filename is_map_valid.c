@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   is_map_valid.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/18 21:48:58 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/18 21:49:30 by jescuder         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "so_long.h"
 
@@ -14,7 +25,6 @@ static size_t	is_rectangle(char **map)
 	return (last_col_index);
 }
 
-//Puede que no haga falta si añado un condicional de borde a adyacent_tiles.
 static int	is_border_valid(char **map, size_t last_col_index)
 {
 	size_t	last_row_index;

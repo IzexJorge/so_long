@@ -1,25 +1,36 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   update_graphics.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/18 21:19:43 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/18 23:02:19 by jescuder         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "so_long.h"
 
-void	update_player(t_entity *player, t_animation *anim, t_mlx *mlx)
+void	update_player(t_entity *player, t_anim *anim, t_mlx *mlx)
 {
-	int		state_value;
+	int		state_val;
 
-	state_value = player->state_value;
-	if (state_value == 0)
+	state_val = player->state_val;
+	if (state_val == 0)
 		update_iddle(player, anim, mlx);
-	else if (state_value >= 1 && state_value <= 4)
-		update_walk(player, anim, state_value, mlx);
+	else if (state_val >= 1 && state_val <= 4)
+		update_walk(player, anim, state_val, mlx);
 	else
-		update_attack(player, anim, state_value, mlx);
+		update_attack(player, anim, state_val, mlx);
 }
 
-void	update_zombie(t_entity *zombie, t_animation *anim, t_mlx *mlx)
+void	update_zombie(t_entity *zombie, t_anim *anim, t_mlx *mlx)
 {
-	int		state_value;
+	int		state_val;
 
-	state_value = zombie->state_value;
-	if (state_value == 0)
+	state_val = zombie->state_val;
+	if (state_val == 0)
 		update_iddle(zombie, anim, mlx);
 	else
 		update_dying(zombie, anim, mlx);
@@ -27,9 +38,9 @@ void	update_zombie(t_entity *zombie, t_animation *anim, t_mlx *mlx)
 
 void	update_entity(t_entity *entity, t_mlx *mlx)
 {
-	t_animation	*anim;
+	t_anim	*anim;
 
-	if (entity->state_value == 10)
+	if (entity->state_val == 10)
 		return ;
 	anim = &(entity->anim);
 	if (anim->delay_counter >= anim->delay)
@@ -43,7 +54,7 @@ void	update_entity(t_entity *entity, t_mlx *mlx)
 	anim->delay_counter++;
 }
 
-int		update_graphics(t_mlx *mlx)
+int	update_graphics(t_mlx *mlx)
 {
 	t_list	*zombies;
 

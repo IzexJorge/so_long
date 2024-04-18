@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/18 21:23:04 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/19 00:21:06 by jescuder         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "so_long.h"
 
@@ -9,7 +20,6 @@ static int	is_arg_valid(char *arg)
 	extension = ft_strrchr(arg, '.');
 	if (!extension)
 		return (0);
-	//n = math.max(ft_strlen(extension), ft_strlen(".ber"))
 	if (ft_strlen(extension) > ft_strlen(".ber"))
 		n = ft_strlen(extension);
 	else
@@ -96,23 +106,9 @@ int	main(int argc, char *argv[])
 		ft_perror();
 	}
 	free(container);
-
-	//Comprobar también que el mapa no es demasiado grande para la pantalla. Tal vez en run_map.
 	is_map_valid(map, map_copy);
-
-	// if (!run_map(map))
-	// {
-	// 	ft_printf("return run_map");
-	// 	free_array(map);
-	// 	ft_perror();
-	// }
 	run_map(map);
-	//free_array(map);
-	ft_printf("Fin del main");
+	free_array(map);
+	ft_perror();
 	return (0);
-
-	//Versión liberando map en run_map en todos los casos, no dependiendo de qué retorne.
-	// if (!run_map(map))
-	// 	return (ft_perror());
-	// return (0);
 }

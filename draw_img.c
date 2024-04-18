@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw_img.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/18 22:02:25 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/18 23:03:30 by jescuder         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "so_long.h"
 
@@ -20,7 +31,7 @@ void	draw_background(size_t x, size_t y, t_mlx *mlx)
 		zombie = zombies->content;
 		if (zombie->x == x && zombie->y == y)
 		{
-			if (zombie->state_value == 10)
+			if (zombie->state_val == 10)
 				draw_img(mlx->imgs_sets[14][3], x, y, mlx);
 			return ;
 		}
@@ -30,8 +41,8 @@ void	draw_background(size_t x, size_t y, t_mlx *mlx)
 
 void	draw_walking(t_entity *entity, float x, float y, t_mlx *mlx)
 {
-	t_animation	*anim;
-	float		tile_perc;
+	t_anim	*anim;
+	float	tile_perc;
 
 	anim = &(entity->anim);
 	tile_perc = ((float)anim->current_img + 1) / anim->imgs_count;

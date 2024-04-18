@@ -1,11 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/18 22:25:47 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/18 23:07:37 by jescuder         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef SO_LONG_H
 # define SO_LONG_H
-
-//Asegurarme de que se puede hacer esto en este proyecto.
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 30
-# endif
 
 # include <stdio.h>
 # include <fcntl.h>
@@ -19,7 +25,6 @@
 //Cuidado con las funciones que he cambiado respecto a libft.
 //Cuidado con las funciones de libft. Podrían estar mal a pesar de estar corregidas.
 
-//Comprobar que puedo y debo usar static const aquí.
 //Controlar el caso de que no tenga permisos para acceder a los archivos de imágenes.
 static const size_t	g_tile_size = 32;
 static const char	*g_single_img[] = {
@@ -117,39 +122,6 @@ static const char	*g_anim_death[] = {
 	NULL
 };
 
-// static const char	*img_paths[] = {
-// 	{
-// 		"textures/Ground1.xpm",
-// 		"textures/Wall1.xpm",
-// 		"textures/Idle-down.xpm",
-// 		"textures/Zombie-idle-down.xpm",
-// 		"textures/Exit.xpm",
-// 	},
-// 	{
-// 		"textures/Ground1.xpm",
-// 		"textures/Wall1.xpm",
-// 		"textures/Idle-down.xpm",
-// 		"textures/Zombie-idle-down.xpm",
-// 		"textures/Exit.xpm",
-// 	},
-// };
-
-// struct MyStruct {
-//     int data;
-// };
-
-// static const struct MyStruct myArray[] = {{1}, {2}, {3}, {4}, {5}};
-
-
-// typedef struct	s_img {
-// 	void	*img;
-// 	char	*addr;
-// 	int		bits_per_pixel;
-// 	int		line_length;
-// 	int		endian;
-// }				t_img;
-
-//	Comprobar si hace falta width y height
 typedef struct s_img
 {
 	void	*img;
@@ -164,25 +136,14 @@ typedef struct s_animation
 	size_t	current_img;
 	size_t	delay;
 	size_t	delay_counter;
-}				t_animation;
+}				t_anim;
 
 typedef struct s_entity
 {
-	size_t		x;
-	size_t		y;
-	t_animation	anim;
-	//0 - Idle
-	//1 - Moving left
-	//2 - Moving right
-	//3 - Moving up
-	//4 - Moving down
-	//5 - Attacking left
-	//6 - Attacking right
-	//7 - Attacking up
-	//8 - Attacking down
-	//9 - Dying
-	//10- Dead
-	int			state_value;
+	size_t	x;
+	size_t	y;
+	t_anim	anim;
+	int		state_val;
 }				t_entity;
 
 typedef struct s_mlx
@@ -192,41 +153,17 @@ typedef struct s_mlx
 	char		**map;
 	t_img		*imgs_sets[15];
 	size_t		imgs_sets_sizes[15];
-	//t_img		**imgs_sets;
 	t_list		*zombies;
 	t_entity	player;
 	size_t		walk_count;
 	size_t		kills_left;
 }				t_mlx;
-// Poner en un .c
-// void list_remove(t_list **head, void *content, int (*compare_func)(void *, void *)) {
-//     t_list *current = *head;
-//     t_list *prev = 0;
 
-//     while (current != 0) {
-//         if (compare_func(current->content, content) == 0) {
-//             if (prev == 0) {
-//                 *head = current->next;
-//             } else {
-//                 prev->next = current->next;
-//             }
-//             free(current);
-//             return;
-//         }
-//         prev = current;
-//         current = current->next;
-//     }
-// }
-// // Poner en un .c
-// int compare_animation(void *anim1, void *anim2) {
-//     return ((t_animation *)anim1 == (t_animation *)anim2);
-// }
 int			main(int argc, char *argv[]);
 char		*ft_strjoin_free(char *s1, char *s2);
 int			ft_perror(void);
 int			ft_printf_error(char *error_message);
 size_t		ft_arraylen(char **array);
-size_t		ft_arraylen2(void *array, size_t element_size);
 void		free_array(char **array);
 void		is_map_valid(char **map, char **map_copy);
 int			are_chars_valid(char **map, size_t *start_coord);
@@ -236,10 +173,10 @@ void		finish_game(t_mlx *mlx);
 void		draw_img(t_img img, float x, float y, t_mlx *mlx);
 int			run_map(char **map);
 int			update_graphics(t_mlx *mlx);
-void		update_iddle(t_entity *entity, t_animation *anim, t_mlx *mlx);
-void		update_walk(t_entity *entity, t_animation *anim, int state_value, t_mlx *mlx);
-void		update_attack(t_entity *entity, t_animation *anim, int state_value, t_mlx *mlx);
-void		update_dying(t_entity *entity, t_animation *anim, t_mlx *mlx);
+void		update_iddle(t_entity *entity, t_anim *anim, t_mlx *mlx);
+void		update_walk(t_entity *ent, t_anim *anim, int state, t_mlx *mlx);
+void		update_attack(t_entity *ent, t_anim *anim, int state, t_mlx *mlx);
+void		update_dying(t_entity *entity, t_anim *anim, t_mlx *mlx);
 void		draw_img(t_img img, float x, float y, t_mlx *mlx);
 void		draw_background(size_t x, size_t y, t_mlx *mlx);
 void		draw_walking(t_entity *entity, float x, float y, t_mlx *mlx);
@@ -250,6 +187,3 @@ void		die(t_entity *entity, t_mlx *mlx);
 t_entity	*get_zombie(size_t x, size_t y, t_mlx *mlx);
 
 #endif
-
-//	Incluir en la carpeta del proyecto del so_long las carpetas libft y printf tal cual las entregué.
-//	El makefile del so_long llama a los de libft y printf.

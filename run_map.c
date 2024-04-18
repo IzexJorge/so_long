@@ -5,49 +5,16 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/13 21:43:21 by jescuder          #+#    #+#             */
-/*   Updated: 2024/04/16 23:52:26 by jescuder         ###   ########.fr       */
+/*   Created: 2024/04/18 21:43:11 by jescuder          #+#    #+#             */
+/*   Updated: 2024/04/18 23:03:15 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-// Sólo imprime los caracteres, para probar.
-int		print_map(char **map)
-{
-	size_t	i;
-	char	*row;
-	size_t	j;
-
-	i = -1;
-	while (map[++i])
-	{
-		row = map[i];
-		j = -1;
-		while (row[++j])
-			ft_putchar_fd(row[j], 1);
-		ft_putchar_fd('\n', 1);
-	}
-	return (1);
-}
-
-int		enough_space(void *mlx, int map_x, int map_y, int tile_s)
-{
-	int	screen_x;
-	int	screen_y;
-
-	(void)mlx;
-	screen_x = 1;
-	screen_y = 2;
-	//mlx_get_screen_size(mlx, &screen_x, &screen_y);
-	if ((screen_x > map_x * tile_s) && (screen_y > map_y * tile_s))
-		return (1);
-	else
-		return (0);
-}
-
 //Tal vez haya que destruir las imagenes con destroy_image.
-//Añadir argumento para errores. Quizá también otro opcional para mensaje de error custom.
+//Añadir argumento para errores.
+//Quizá también otro opcional para mensaje de error custom.
 void	finish_game(t_mlx *mlx)
 {
 	ft_printf("finish game\n");
@@ -58,8 +25,9 @@ void	finish_game(t_mlx *mlx)
 	exit(0);
 }
 
-//Comprobar por qué la ausencia estos free no hacen saltar el sanitizer. Especialmente el de map.
-int		on_destroy(t_mlx *mlx)
+//Comprobar por qué la ausencia estos free no hacen saltar el sanitizer.
+//Especialmente el de map.
+int	on_destroy(t_mlx *mlx)
 {
 	ft_printf("on_destroy\n");
 	free(mlx->win);
@@ -69,22 +37,6 @@ int		on_destroy(t_mlx *mlx)
 	exit(0);
 }
 
-t_entity	*get_zombie(size_t x, size_t y, t_mlx *mlx)
-{
-	t_list		*zombies;
-	t_entity	*zombie;
-
-	zombies = mlx->zombies;
-	while (zombies)
-	{
-		zombie = (t_entity *)zombies->content;
-		if (zombie->x == x && zombie->y == y)
-			return zombie;
-		zombies = zombies->next;
-	}
-	return NULL;
-}
-
 void	direction_action(int x, int y, t_mlx *mlx)
 {
 	t_entity	*player;
@@ -92,7 +44,7 @@ void	direction_action(int x, int y, t_mlx *mlx)
 	t_entity	*zombie;
 
 	player = &(mlx->player);
-	if (player->state_value != 0)
+	if (player->state_val != 0)
 		return ;
 	element = mlx->map[player->y + y][player->x + x];
 	if (element == '0' || element == 'P')
@@ -100,9 +52,9 @@ void	direction_action(int x, int y, t_mlx *mlx)
 	else if (element == 'C')
 	{
 		zombie = get_zombie(player->x + x, player->y + y, mlx);
-		if (zombie->state_value == 9)
+		if (zombie->state_val == 9)
 			return ;
-		else if(zombie->state_value == 10)
+		else if (zombie->state_val == 10)
 			walk(player, x, y, mlx);
 		else
 			attack(player, x, y, mlx);
@@ -111,7 +63,7 @@ void	direction_action(int x, int y, t_mlx *mlx)
 		finish_game(mlx);
 }
 
-int		on_keydown(int keycode, t_mlx *mlx)
+int	on_keydown(int keycode, t_mlx *mlx)
 {
 	if (keycode == 2 || keycode == 124)
 		direction_action(1, 0, mlx);
@@ -126,18 +78,18 @@ int		on_keydown(int keycode, t_mlx *mlx)
 	return (0);
 }
 
-//TODO Setear fps para que haya consistencia de las animaciones en el tiempo y entre equipos.
+//TODO Setear fps para que haya consistencia de las animaciones
+//en el tiempo y entre sistemas.
 
-int		run_map(char **map)
+//TODO Detectar resolución en lugar de hardcodear 1920 x 1080.
+int	run_map(char **map)
 {
 	t_mlx	mlx;
-
-	print_map(map);//Para probar
 
 	mlx.mlx = mlx_init();
 	if (!mlx.mlx)
 		return (0);
-	mlx.win = mlx_new_window(mlx.mlx, 1920, 1080, "Hello world!");//No hardcoded
+	mlx.win = mlx_new_window(mlx.mlx, 1920, 1080, "so_long");
 	if (!mlx.win)
 	{
 		free(mlx.mlx);
@@ -149,12 +101,9 @@ int		run_map(char **map)
 	mlx.kills_left = 0;
 	init_img_sets(&mlx);
 	init_map(&mlx);
-
 	mlx_hook(mlx.win, 2, 0, on_keydown, &mlx);
 	mlx_hook(mlx.win, 17, 0, on_destroy, &mlx);
-
 	mlx_loop_hook(mlx.mlx, update_graphics, &mlx);
 	mlx_loop(mlx.mlx);
-
 	return (1);
 }
