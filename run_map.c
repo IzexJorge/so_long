@@ -6,35 +6,26 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 21:43:11 by jescuder          #+#    #+#             */
-/*   Updated: 2024/04/18 23:03:15 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/04/19 18:56:55 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-//Tal vez haya que destruir las imagenes con destroy_image.
-//Añadir argumento para errores.
-//Quizá también otro opcional para mensaje de error custom.
-void	finish_game(t_mlx *mlx)
+void	finish_game(int error, t_mlx *mlx)
 {
-	ft_printf("finish game\n");
 	mlx_destroy_window(mlx->mlx, mlx->win);
 	free(mlx->mlx);
 	free_array(mlx->map);
-	(void)mlx;
+	if (error)
+		ft_perror();
 	exit(0);
 }
 
-//Comprobar por qué la ausencia estos free no hacen saltar el sanitizer.
-//Especialmente el de map.
 int	on_destroy(t_mlx *mlx)
 {
-	ft_printf("on_destroy\n");
-	free(mlx->win);
-	free(mlx->mlx);
-	free_array(mlx->map);
-	(void)mlx;
-	exit(0);
+	finish_game(0, mlx);
+	return (0);
 }
 
 void	direction_action(int x, int y, t_mlx *mlx)
@@ -60,7 +51,7 @@ void	direction_action(int x, int y, t_mlx *mlx)
 			attack(player, x, y, mlx);
 	}
 	else if (element == 'E' && mlx->kills_left == 0)
-		finish_game(mlx);
+		finish_game(0, mlx);
 }
 
 int	on_keydown(int keycode, t_mlx *mlx)
@@ -74,14 +65,10 @@ int	on_keydown(int keycode, t_mlx *mlx)
 	else if (keycode == 13 || keycode == 126)
 		direction_action(0, -1, mlx);
 	else if (keycode == 53)
-		finish_game(mlx);
+		finish_game(0, mlx);
 	return (0);
 }
 
-//TODO Setear fps para que haya consistencia de las animaciones
-//en el tiempo y entre sistemas.
-
-//TODO Detectar resolución en lugar de hardcodear 1920 x 1080.
 int	run_map(char **map)
 {
 	t_mlx	mlx;

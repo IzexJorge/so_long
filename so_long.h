@@ -6,7 +6,7 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 22:25:47 by jescuder          #+#    #+#             */
-/*   Updated: 2024/04/18 23:07:37 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/04/19 19:40:29 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,9 @@
 # include "printf/ft_printf.h"
 # include <mlx.h>
 
-//Asegurarme de llamar a ft_printf y no a printf. Y de las demás funciones ft.
-//Cuidado con las funciones que he cambiado respecto a libft.
-//Cuidado con las funciones de libft. Podrían estar mal a pesar de estar corregidas.
-
-//Controlar el caso de que no tenga permisos para acceder a los archivos de imágenes.
 static const size_t	g_tile_size = 32;
 static const char	*g_single_img[] = {
-	"textures/Ground1.xpm",
+	"textures/Tile1.xpm",
 	"textures/Wall1.xpm",
 	"textures/Exit.xpm",
 	NULL
@@ -169,7 +164,7 @@ void		is_map_valid(char **map, char **map_copy);
 int			are_chars_valid(char **map, size_t *start_coord);
 void		init_img_sets(t_mlx *mlx);
 void		init_map(t_mlx *mlx);
-void		finish_game(t_mlx *mlx);
+void		finish_game(int error, t_mlx *mlx);
 void		draw_img(t_img img, float x, float y, t_mlx *mlx);
 int			run_map(char **map);
 int			update_graphics(t_mlx *mlx);

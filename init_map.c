@@ -6,7 +6,7 @@
 /*   By: jescuder <jescuder@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 21:51:28 by jescuder          #+#    #+#             */
-/*   Updated: 2024/04/18 23:03:24 by jescuder         ###   ########.fr       */
+/*   Updated: 2024/04/19 18:24:09 by jescuder         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	init_img_set(const char **img_paths, size_t index, t_mlx *mlx)
 	set_size = ft_arraylen((char **)img_paths);
 	img_set = ft_calloc(set_size, sizeof(t_img));
 	if (!img_set)
-		finish_game(mlx);
+		finish_game(1, mlx);
 	mlx->imgs_sets[index] = img_set;
 	mlx->imgs_sets_sizes[index] = set_size;
 	i = -1;
@@ -32,7 +32,7 @@ void	init_img_set(const char **img_paths, size_t index, t_mlx *mlx)
 		if (!img_set[i].img)
 		{
 			ft_printf("The file \"%s\" could not be read.\n", img_paths[i]);
-			finish_game(mlx);
+			finish_game(0, mlx);
 		}
 	}
 }
@@ -82,10 +82,10 @@ void	create_entity(int isZombie, size_t x, size_t y, t_mlx *mlx)
 	{
 		entity = malloc(sizeof(t_entity));
 		if (!entity)
-			finish_game(mlx);
+			finish_game(1, mlx);
 		new_node = ft_lstnew(entity);
 		if (!new_node)
-			finish_game(mlx);
+			finish_game(1, mlx);
 		ft_lstadd_front(&(mlx->zombies), new_node);
 		mlx->kills_left++;
 	}

@@ -13,7 +13,7 @@ SRC = so_long.c \
 	actions.c
 OBJ = $(SRC:.c=.o)
 NAME = so_long
-MLX = -L/usr/local/lib -lmlx -framework OpenGL -framework AppKit
+MLX = -lmlx -framework OpenGL -framework AppKit
 
 .PHONY: all clean fclean re
 
